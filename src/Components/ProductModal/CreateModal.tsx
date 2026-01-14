@@ -30,7 +30,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
         
         if (images && images.length > 0) {
              images.forEach((img) => {
-                formData.append('images[]', img);
+                formData.append('images', img);
             });
         }
 
