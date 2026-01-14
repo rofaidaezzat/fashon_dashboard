@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const ContactUsApiSlice = createApi({
     reducerPath: 'ContactUsApiSlice',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://lavishly-fogless-sang.ngrok-free.dev',
+        baseUrl: 'https://fz-designer.vercel.app/',
         prepareHeaders: (headers, { getState }) => {
             // Check if auth slice exists in state before accessing
             const state = getState() as any;

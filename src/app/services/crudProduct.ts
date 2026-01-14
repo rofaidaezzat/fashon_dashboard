@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const ProductApislice = createApi({
     reducerPath: 'ProductApislice',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://lavishly-fogless-sang.ngrok-free.dev',
+        baseUrl: 'https://fz-designer.vercel.app/',
         prepareHeaders: (headers) => {
             const token = localStorage.getItem('accessToken');
             if (token) {
