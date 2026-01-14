@@ -1,3 +1,4 @@
+import React from 'react';
 
 interface PaginatorProps {
     page: number;
@@ -7,66 +8,117 @@ interface PaginatorProps {
 
 const Paginator: React.FC<PaginatorProps> = ({ page, setPage, numberOfPages }) => {
     
-    // Safety check to ensure numberOfPages is at least 1
     const totalPages = Math.max(1, numberOfPages || 1);
 
     const handlePrevious = () => {
-        setPage(old => Math.max(old - 1, 1));
+        if (page > 1) {
+            setPage(page - 1);
+        }
     };
 
     const handleNext = () => {
-        setPage(old => (old < totalPages ? old + 1 : old));
+        if (page < totalPages) {
+            setPage(page + 1);
+        }
+    };
+
+    const handlePageClick = (p: number) => {
+        setPage(p);
+    };
+
+    const getPageNumbers = () => {
+        const pages: (number | string)[] = [];
+        const siblings = 1; 
+
+        // Always add first page
+        pages.push(1);
+
+        if (page > siblings + 2) {
+            pages.push('start-ellipsis');
+        }
+
+        let start = Math.max(2, page - siblings);
+        let end = Math.min(totalPages - 1, page + siblings);
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        if (page < totalPages - siblings - 1) {
+            pages.push('end-ellipsis');
+        }
+
+        // Always add last page if there is more than one page
+        if (totalPages > 1) {
+            pages.push(totalPages);
+        }
+        
+        return pages;
+    };
+
+    // If total pages are small, just show all of them
+    const renderPages = () => {
+        if (totalPages <= 7) {
+            const pages = [];
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+            return pages.map((p) => renderPageButton(p));
+        }
+        return getPageNumbers().map((p, index) => renderPageButton(p, index));
+    };
+
+    const renderPageButton = (p: number | string, index?: number) => {
+        if (p === 'start-ellipsis' || p === 'end-ellipsis') {
+            return (
+                <span key={`ellipsis-${index}`} className="px-2 text-gray-400 select-none">
+                    …
+                </span>
+            );
+        }
+
+        const isCurrent = p === page;
+        
+        return (
+            <button
+                key={p}
+                onClick={() => handlePageClick(p as number)}
+                className={`
+                    flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors
+                    ${isCurrent 
+                        ? 'bg-blue-600 text-white shadow-md' 
+                        : 'text-gray-700 hover:bg-black/5 dark:hover:bg-white/10'
+                    }
+                `}
+            >
+                {p}
+            </button>
+        );
     };
 
     return (
-        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-lg shadow">
-            <div className="flex flex-1 justify-between sm:hidden">
-                <button
-                    onClick={handlePrevious}
-                    disabled={page === 1}
-                    className={`relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${page === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                    Previous
-                </button>
-                <button
-                    onClick={handleNext}
-                    disabled={page >= totalPages}
-                    className={`relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${page >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                    Next
-                </button>
-            </div>
-            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                    <p className="text-sm text-gray-700">
-                        Showing page <span className="font-medium">{page}</span> of <span className="font-medium">{totalPages}</span>
-                    </p>
-                </div>
-                <div>
-                    <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                        <button
-                            onClick={handlePrevious}
-                            disabled={page === 1}
-                            className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 ${page === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <span className="sr-only">Previous</span>
-                            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
-                            </svg>
-                        </button>
-                        <button
-                            onClick={handleNext}
-                            disabled={page >= totalPages}
-                            className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 ${page >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <span className="sr-only">Next</span>
-                            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                            </svg>
-                        </button>
-                    </nav>
-                </div>
-            </div>
+        <div className="flex items-center justify-center mt-6 space-x-1">
+            <button
+                onClick={handlePrevious}
+                disabled={page === 1}
+                className={`p-2 rounded-full text-gray-500 hover:bg-black/5 disabled:opacity-30 disabled:cursor-not-allowed`}
+            >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+
+            {renderPages()}
+
+            <button
+                onClick={handleNext}
+                disabled={page === totalPages}
+                className={`p-2 rounded-full text-gray-500 hover:bg-black/5 disabled:opacity-30 disabled:cursor-not-allowed`}
+            >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
         </div>
     );
 };
