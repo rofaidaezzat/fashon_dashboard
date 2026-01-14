@@ -4,6 +4,7 @@ import CreateModal from '../Components/ProductModal/CreateModal';
 import UpdateModal from '../Components/ProductModal/UpdateModal';
 import DeleteModal from '../Components/ProductModal/DeleteModal';
 import Paginator from '../Components/Paginator';
+import ViewModal from '../Components/ProductModal/VeiwModal';
 
 const Product = () => {
     const [page, setPage] = useState(1);
@@ -14,6 +15,7 @@ const Product = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
@@ -25,6 +27,11 @@ const Product = () => {
     const handleDelete = (product: any) => {
         setSelectedProduct(product);
         setIsDeleteModalOpen(true);
+    };
+
+    const handleView = (product: any) => {
+        setSelectedProduct(product);
+        setIsViewModalOpen(true);
     };
 
     const products = productsData?.data || [];
@@ -82,18 +89,39 @@ const Product = () => {
                                 products.map((product: any) => (
                                     <tr key={product._id} className="border-b hover:bg-gray-50">
                                         <td className="px-6 py-4">
-                                            {product.image && (
-                                                <img 
-                                                    src={product.image.startsWith('http') ? product.image : `https://lavishly-fogless-sang.ngrok-free.dev/${product.image}`} 
-                                                    alt={product.name} 
-                                                    className="h-12 w-12 rounded object-cover"
-                                                />
-                                            )}
+                                            <div className="flex gap-2 flex-wrap">
+                                                {product.images && product.images.length > 0 ? (
+                                                    product.images.map((img: string, index: number) => (
+                                                        <img 
+                                                            key={index}
+                                                            src={img.startsWith('http') ? img : `https://lavishly-fogless-sang.ngrok-free.dev/${img}`} 
+                                                            alt={`${product.name} ${index + 1}`} 
+                                                            className="h-12 w-12 rounded object-cover"
+                                                        />
+                                                    ))
+                                                ) : product.image && (
+                                                    <img 
+                                                        src={product.image.startsWith('http') ? product.image : `https://lavishly-fogless-sang.ngrok-free.dev/${product.image}`} 
+                                                        alt={product.name} 
+                                                        className="h-12 w-12 rounded object-cover"
+                                                    />
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 font-medium text-gray-900">{product.name}</td>
                                         <td className="px-6 py-4">${product.price}</td>
                                         <td className="px-6 py-4">{product.category}</td>
                                         <td className="px-6 py-4 space-x-3">
+                                            <button 
+                                                onClick={() => handleView(product)}
+                                                className="font-medium text-gray-600 hover:underline"
+                                                title="View Details"
+                                            >
+                                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                            </button>
                                             <button 
                                                 onClick={() => handleEdit(product)}
                                                 className="font-medium text-blue-600 hover:underline"
@@ -137,6 +165,11 @@ const Product = () => {
                 onClose={() => setIsDeleteModalOpen(false)} 
                 productId={selectedProduct?._id}
                 productName={selectedProduct?.name}
+            />
+            <ViewModal 
+                isOpen={isViewModalOpen} 
+                onClose={() => setIsViewModalOpen(false)} 
+                product={selectedProduct}
             />
         </div>
     );

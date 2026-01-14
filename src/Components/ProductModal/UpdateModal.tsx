@@ -35,20 +35,23 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
             setDescription(product.description || ''); // Handle potential missing description
             setCategory(product.category || ''); // Handle potential missing category
             
-            let initialSizes: string[] = [];
+            let rawSizes: string[] = [];
             if (Array.isArray(product.sizes)) {
-                initialSizes = product.sizes;
+                rawSizes = product.sizes;
             } else if (typeof product.sizes === 'string') {
-                // Split by comma and trim whitespace to ensure accurate matching
-                initialSizes = (product.sizes as string).split(',').map(s => {
-                    const trimmed = s.trim().toLowerCase();
-                    // Normalization map for legacy sizes
-                    const map: Record<string, string> = {
-                        'sm': 's', 'md': 'm', 'lg': 'l', 'xlg': 'xl', 'xxlg': 'xxl'
-                    };
-                    return map[trimmed] || trimmed;
-                });
+                rawSizes = (product.sizes as string).split(',');
             }
+
+            const initialSizes = rawSizes.map(s => {
+                const trimmed = s.trim().toLowerCase();
+                // Normalization map for legacy and varied size formats
+                const map: Record<string, string> = {
+                    'small': 's', 'medium': 'm', 'large': 'l',
+                    'sm': 's', 'md': 'm', 'lg': 'l', 
+                    'xlg': 'xl', 'xxlg': 'xxl', '2xl': 'xxl'
+                };
+                return map[trimmed] || trimmed;
+            });
             console.log('Parsed initialSizes:', initialSizes);
             setSizes(initialSizes);
             
