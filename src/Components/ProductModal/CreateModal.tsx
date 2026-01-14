@@ -12,7 +12,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [sizes, setSizes] = useState<string[]>([]);
-    const [image, setImage] = useState<File | null>(null);
+    const [images, setImages] = useState<File[]>([]);
 
     const [addProduct, { isLoading }] = useAddProductMutation();
 
@@ -27,8 +27,11 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
         formData.append('description', description);
         formData.append('category', category);
         formData.append('sizes', sizes.join(','));
-        if (image) {
-            formData.append('image', image);
+        
+        if (images && images.length > 0) {
+             images.forEach((img) => {
+                formData.append('image', img);
+            });
         }
 
         try {
@@ -40,7 +43,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
             setDescription('');
             setCategory('');
             setSizes([]);
-            setImage(null);
+            setImages([]);
         } catch (error) {
             console.error('Failed to create product:', error);
         }
@@ -141,13 +144,19 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                             ></textarea>
                         </div>
                         <div>
-                            <label className="mb-2 block text-sm font-medium text-gray-900" htmlFor="file_input">Upload Image</label>
+                            <label className="mb-2 block text-sm font-medium text-gray-900" htmlFor="file_input">Upload Images</label>
                             <input 
                                 className="block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-none" 
                                 id="file_input" 
                                 type="file"
-                                onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+                                multiple
+                                onChange={(e) => setImages(e.target.files ? Array.from(e.target.files) : [])}
                             />
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                {images.length > 0 && images.map((img, index) => (
+                                    <span key={index} className="text-xs text-gray-500">{img.name}</span>
+                                ))}
+                            </div>
                         </div>
                         <button
                             type="submit"
