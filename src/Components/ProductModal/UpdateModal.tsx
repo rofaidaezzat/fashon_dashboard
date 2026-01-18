@@ -9,6 +9,7 @@ interface Product {
     category: string;
     sizes?: string | string[];
     image?: string;
+    images?: string[];
 }
 
 interface UpdateModalProps {
@@ -23,7 +24,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [sizes, setSizes] = useState<string[]>([]);
-    const [image, setImage] = useState<File | null>(null);
+    const [images, setImages] = useState<File[]>([]);
 
     const [updateProduct, { isLoading }] = useUpdateProductMutation();
 
@@ -55,7 +56,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
             console.log('Parsed initialSizes:', initialSizes);
             setSizes(initialSizes);
             
-            setImage(null); // Reset image on new product selection
+            setImages([]); // Reset images on new product selection
         }
     }, [product]);
 
@@ -69,12 +70,15 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
         formData.append('price', price);
         formData.append('description', description);
         formData.append('category', category);
-        // formData.append('sizes', sizes.join(','));
+        
         sizes.forEach((size) => {
             formData.append('sizes', size);
         });
-        if (image) {
-            formData.append('image', image);
+
+        if (images && images.length > 0) {
+             images.forEach((img) => {
+                formData.append('images', img);
+            });
         }
 
         try {
@@ -84,6 +88,10 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
             console.error('Failed to update product:', error);
         }
     };
+
+    const existingImages = product.images && product.images.length > 0 
+        ? product.images 
+        : product.image ? [product.image] : [];
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 p-4">
@@ -180,13 +188,31 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                             ></textarea>
                         </div>
                         <div>
-                            <label className="mb-2 block text-sm font-medium text-gray-900" htmlFor="update_file_input">Upload Image</label>
+                            <label className="mb-2 block text-sm font-medium text-gray-900">Current Images</label>
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                {existingImages.map((img, index) => (
+                                    <img 
+                                        key={index}
+                                        src={img.startsWith('http') ? img : `https://lavishly-fogless-sang.ngrok-free.dev/${img}`} 
+                                        alt={`Product ${index}`} 
+                                        className="h-16 w-16 rounded object-cover border border-gray-200"
+                                    />
+                                ))}
+                            </div>
+
+                            <label className="mb-2 block text-sm font-medium text-gray-900" htmlFor="update_file_input">Upload New Images</label>
                             <input 
                                 className="block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-none" 
                                 id="update_file_input" 
                                 type="file"
-                                onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+                                multiple
+                                onChange={(e) => setImages(e.target.files ? Array.from(e.target.files) : [])}
                             />
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                {images.length > 0 && images.map((img, index) => (
+                                    <span key={index} className="text-xs text-gray-500">{img.name}</span>
+                                ))}
+                            </div>
                         </div>
                         <button
                             type="submit"
