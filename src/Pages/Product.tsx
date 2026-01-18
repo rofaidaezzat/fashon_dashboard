@@ -89,21 +89,33 @@ const Product = () => {
                                 products.map((product: any) => (
                                     <tr key={product._id} className="border-b hover:bg-gray-50">
                                         <td className="px-6 py-4">
-                                            <div className="flex gap-2 flex-wrap">
+                                            <div className="flex gap-2 flex-wrap items-center">
                                                 {product.images && product.images.length > 0 ? (
-                                                    product.images.map((img: string, index: number) => (
-                                                        <img 
-                                                            key={index}
-                                                            src={img.startsWith('http') ? img : `https://lavishly-fogless-sang.ngrok-free.dev/${img}`} 
-                                                            alt={`${product.name} ${index + 1}`} 
-                                                            className="h-12 w-12 rounded object-cover"
-                                                        />
-                                                    ))
+                                                    <>
+                                                        {product.images.slice(0, 3).map((img: string, index: number) => (
+                                                            <img 
+                                                                key={index}
+                                                                src={img.startsWith('http') ? img : `https://lavishly-fogless-sang.ngrok-free.dev/${img}`} 
+                                                                alt={`${product.name} ${index + 1}`} 
+                                                                className="h-12 w-12 rounded object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                                                onClick={() => handleView(product)}
+                                                            />
+                                                        ))}
+                                                        {product.images.length > 3 && (
+                                                            <div 
+                                                                className="h-12 w-12 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs font-medium text-gray-600 cursor-pointer hover:bg-gray-200 transition-colors"
+                                                                onClick={() => handleView(product)}
+                                                            >
+                                                                +{product.images.length - 3}
+                                                            </div>
+                                                        )}
+                                                    </>
                                                 ) : product.image && (
                                                     <img 
                                                         src={product.image.startsWith('http') ? product.image : `https://lavishly-fogless-sang.ngrok-free.dev/${product.image}`} 
                                                         alt={product.name} 
-                                                        className="h-12 w-12 rounded object-cover"
+                                                        className="h-12 w-12 rounded object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                                        onClick={() => handleView(product)}
                                                     />
                                                 )}
                                             </div>

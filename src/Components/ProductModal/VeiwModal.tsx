@@ -19,6 +19,7 @@ interface ViewModalProps {
 
 const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onClose, product }) => {
     const [sizes, setSizes] = useState<string[]>([]);
+    const [selectedImg, setSelectedImg] = useState<string | null>(null);
 
     useEffect(() => {
         if (product) {
@@ -39,6 +40,12 @@ const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onClose, product }) => {
                 return map[trimmed] || trimmed;
             });
             setSizes(initialSizes);
+
+            // Set initial selected image
+            const imgs = product.images && product.images.length > 0 
+                ? product.images 
+                : product.image ? [product.image] : [];
+            if (imgs.length > 0) setSelectedImg(imgs[0]);
         }
     }, [product]);
 
@@ -96,13 +103,25 @@ const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onClose, product }) => {
 
                     <div>
                         <span className="block text-sm font-medium text-gray-500 mb-2">Images</span>
+                        
+                        {selectedImg && (
+                             <div className="mb-4 aspect-video w-full rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
+                                <img 
+                                    src={selectedImg.startsWith('http') ? selectedImg : `https://lavishly-fogless-sang.ngrok-free.dev/${selectedImg}`} 
+                                    alt="Selected product"
+                                    className="h-full w-full object-contain" 
+                                />
+                             </div>
+                        )}
+
                         <div className="flex flex-wrap gap-2">
                             {allImages.map((img, index) => (
                                 <img 
                                     key={index}
                                     src={img.startsWith('http') ? img : `https://lavishly-fogless-sang.ngrok-free.dev/${img}`} 
                                     alt={`${product.name} ${index + 1}`} 
-                                    className="h-24 w-24 rounded-lg object-cover border border-gray-200"
+                                    className={`h-20 w-20 rounded-lg object-cover border-2 cursor-pointer transition-all ${selectedImg === img ? 'border-indigo-600 ring-2 ring-indigo-100' : 'border-gray-200 hover:border-gray-300'}`}
+                                    onClick={() => setSelectedImg(img)}
                                 />
                             ))}
                         </div>
