@@ -25,6 +25,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
     const [category, setCategory] = useState('');
     const [sizes, setSizes] = useState<string[]>([]);
     const [images, setImages] = useState<File[]>([]);
+    const [keptImages, setKeptImages] = useState<string[]>([]);
 
     const [updateProduct, { isLoading }] = useUpdateProductMutation();
 
@@ -57,6 +58,11 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
             setSizes(initialSizes);
             
             setImages([]); // Reset images on new product selection
+            
+            const existing = product.images && product.images.length > 0 
+                ? product.images 
+                : product.image ? [product.image] : [];
+            setKeptImages(existing);
         }
     }, [product]);
 
@@ -75,6 +81,10 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
             formData.append('sizes', size);
         });
 
+        keptImages.forEach((img) => {
+            formData.append('images', img);
+        });
+
         if (images && images.length > 0) {
              images.forEach((img) => {
                 formData.append('images', img);
@@ -89,9 +99,6 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
         }
     };
 
-    const existingImages = product.images && product.images.length > 0 
-        ? product.images 
-        : product.image ? [product.image] : [];
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 p-4">
@@ -190,13 +197,22 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-900">Current Images</label>
                             <div className="flex flex-wrap gap-2 mb-4">
-                                {existingImages.map((img, index) => (
-                                    <img 
-                                        key={index}
-                                        src={img.startsWith('http') ? img : `https://lavishly-fogless-sang.ngrok-free.dev/${img}`} 
-                                        alt={`Product ${index}`} 
-                                        className="h-16 w-16 rounded object-cover border border-gray-200"
-                                    />
+                                {keptImages.map((img, index) => (
+                                    <div key={index} className="relative">
+                                        <img 
+                                            src={img.startsWith('http') ? img : `https://lavishly-fogless-sang.ngrok-free.dev/${img}`} 
+                                            alt={`Product ${index}`} 
+                                            className="h-16 w-16 rounded object-cover border border-gray-200"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setKeptImages(keptImages.filter((_, i) => i !== index))}
+                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none"
+                                            style={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
 
@@ -206,11 +222,22 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 id="update_file_input" 
                                 type="file"
                                 multiple
-                                onChange={(e) => setImages(e.target.files ? Array.from(e.target.files) : [])}
+                                onChange={(e) => setImages([...images, ...Array.from(e.target.files || [])])}
                             />
                             <div className="mt-2 flex flex-wrap gap-2">
                                 {images.length > 0 && images.map((img, index) => (
-                                    <span key={index} className="text-xs text-gray-500">{img.name}</span>
+                                    <div key={index} className="relative">
+                                        <span className="text-xs text-gray-500 border border-gray-200 rounded px-2 py-1 bg-gray-50 flex items-center gap-2">
+                                            {img.name}
+                                            <button
+                                                type="button"
+                                                onClick={() => setImages(images.filter((_, i) => i !== index))}
+                                                className="text-red-500 hover:text-red-700 font-bold"
+                                            >
+                                                ✕
+                                            </button>
+                                        </span>
+                                    </div>
                                 ))}
                             </div>
                         </div>
