@@ -86,7 +86,7 @@ const Paginator: React.FC<PaginatorProps> = ({ page, setPage, numberOfPages }) =
                 className={`
                     flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors
                     ${isCurrent 
-                        ? 'bg-blue-600 text-white shadow-md' 
+                        ? 'bg-primary-600 text-white shadow-md' 
                         : 'text-gray-700 hover:bg-black/5 dark:hover:bg-white/10'
                     }
                 `}

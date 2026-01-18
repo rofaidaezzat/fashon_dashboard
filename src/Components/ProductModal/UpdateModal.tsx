@@ -106,7 +106,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 id="update_name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
                                 required
                             />
                         </div>
@@ -117,7 +117,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 id="update_price"
                                 value={price}
                                 onChange={(e) => setPrice(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
                                 required
                             />
                         </div>
@@ -127,7 +127,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 id="update_category"
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
                                 required
                             >
                                 <option value="" disabled>Select category</option>
@@ -157,7 +157,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                                     setSizes(sizes.filter((s) => s !== size));
                                                 }
                                             }}
-                                            className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                                            className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-primary-600 focus:ring-2 focus:ring-primary-500"
                                         />
                                         <label htmlFor={`update-size-${size}`} className="ml-2 text-sm font-medium text-gray-900 uppercase">
                                             {size}
@@ -173,7 +173,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 rows={3}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
                             ></textarea>
                         </div>
                         <div>
@@ -188,7 +188,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white ${isLoading ? 'bg-blue-400' : 'bg-blue-700 hover:bg-blue-800'}`}
+                            className={`w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white ${isLoading ? 'bg-primary-400' : 'bg-primary-600 hover:bg-primary-700'}`}
                         >
                             {isLoading ? 'Updating...' : 'Update Product'}
                         </button>

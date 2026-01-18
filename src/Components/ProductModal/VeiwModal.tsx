@@ -120,7 +120,7 @@ const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onClose, product }) => {
                                     key={index}
                                     src={img.startsWith('http') ? img : `https://lavishly-fogless-sang.ngrok-free.dev/${img}`} 
                                     alt={`${product.name} ${index + 1}`} 
-                                    className={`h-20 w-20 rounded-lg object-cover border-2 cursor-pointer transition-all ${selectedImg === img ? 'border-indigo-600 ring-2 ring-indigo-100' : 'border-gray-200 hover:border-gray-300'}`}
+                                    className={`h-20 w-20 rounded-lg object-cover border-2 cursor-pointer transition-all ${selectedImg === img ? 'border-primary-600 ring-2 ring-primary-100' : 'border-gray-200 hover:border-gray-300'}`}
                                     onClick={() => setSelectedImg(img)}
                                 />
                             ))}

@@ -29,7 +29,7 @@ const Sidebar = () => {
                     to="/dashboard/product"
                      className={({ isActive }) =>
                         `group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
-                            isActive ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            isActive ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`
                     }
                 >
@@ -39,7 +39,7 @@ const Sidebar = () => {
                     to="/dashboard/contact-us"
                    className={({ isActive }) =>
                         `group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
-                            isActive ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            isActive ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`
                     }
                 >

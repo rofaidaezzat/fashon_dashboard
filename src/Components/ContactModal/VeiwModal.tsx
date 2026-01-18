@@ -65,13 +65,13 @@ const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onClose, message }) => {
                     <button
                         onClick={onClose}
                         type="button"
-                        className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-center text-sm font-medium text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-center text-sm font-medium text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-primary-300"
                     >
                         Close
                     </button>
                     <a
                         href={`mailto:${message.email}`}
-                        className="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        className="rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300"
                     >
                         Reply via Email
                     </a>

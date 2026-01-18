@@ -18,7 +18,7 @@ const ContactUs = () => {
     if (isLoading) {
         return (
             <div className="flex h-screen items-center justify-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-indigo-600"></div>
+                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary-600"></div>
             </div>
         );
     }
@@ -82,7 +82,7 @@ const ContactUs = () => {
                                             <td className="px-6 py-4">
                                                 <button
                                                     onClick={() => handleView(msg)}
-                                                    className="font-medium text-indigo-600 hover:underline"
+                                                    className="font-medium text-primary-600 hover:underline"
                                                 >
                                                     View
                                                 </button>

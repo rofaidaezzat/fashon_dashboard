@@ -44,7 +44,7 @@ const Product = () => {
     if (isLoading) {
          return (
             <div className="flex h-screen items-center justify-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-indigo-600"></div>
+                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary-600"></div>
             </div>
         );
     }
@@ -63,7 +63,7 @@ const Product = () => {
                 <h1 className="text-3xl font-bold text-gray-900">Products</h1>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="rounded-lg bg-indigo-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300"
+                    className="rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300"
                 >
                     Add Product
                 </button>
