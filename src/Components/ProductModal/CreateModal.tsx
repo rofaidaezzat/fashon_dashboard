@@ -27,13 +27,13 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
         formData.append('description', description);
         formData.append('category', category);
         // formData.append('sizes', sizes.join(','));
-        sizes.forEach((size, index) => {
-            formData.append(`sizes[${index}]`, size);
+        sizes.forEach((size) => {
+            formData.append('sizes', size);
         });
         
         if (images && images.length > 0) {
-             images.forEach((img, index) => {
-                formData.append(`images[${index}]`, img);
+             images.forEach((img) => {
+                formData.append('images', img);
             });
         }
 

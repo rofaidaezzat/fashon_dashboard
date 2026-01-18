@@ -70,8 +70,8 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
         formData.append('description', description);
         formData.append('category', category);
         // formData.append('sizes', sizes.join(','));
-        sizes.forEach((size, index) => {
-            formData.append(`sizes[${index}]`, size);
+        sizes.forEach((size) => {
+            formData.append('sizes', size);
         });
         if (image) {
             formData.append('image', image);
