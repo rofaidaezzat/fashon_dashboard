@@ -103,7 +103,7 @@ const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onClose, product }) => {
                                       <div
                                         key={color}
                                         className="relative flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 shadow-sm"
-                                        style={{ backgroundColor: color }}
+                                        style={{ backgroundColor: color === 'baby blue' ? '#89CFF0' : color === 'burgundy' ? '#800020' : color }}
                                         title={color}
                                     >
                                     </div>
