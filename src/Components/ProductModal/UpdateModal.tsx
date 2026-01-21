@@ -10,6 +10,7 @@ interface Product {
     sizes?: string | string[];
     image?: string;
     images?: string[];
+    colors?: string | string[];
 }
 
 interface UpdateModalProps {
@@ -26,6 +27,8 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
     const [sizes, setSizes] = useState<string[]>([]);
     const [images, setImages] = useState<File[]>([]);
     const [keptImages, setKeptImages] = useState<string[]>([]);
+    // Add colors state
+    const [colors, setColors] = useState<string[]>([]);
 
     const [updateProduct, { isLoading }] = useUpdateProductMutation();
 
@@ -57,6 +60,17 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
             console.log('Parsed initialSizes:', initialSizes);
             setSizes(initialSizes);
             
+            // Handle colors
+            let rawColors: string[] = [];
+            if (Array.isArray(product.colors)) {
+                rawColors = product.colors;
+            } else if (typeof product.colors === 'string') {
+                rawColors = (product.colors as string).split(',');
+            }
+             const initialColors = rawColors.map(c => c.trim().toLowerCase());
+            setColors(initialColors);
+
+            
             setImages([]); // Reset images on new product selection
             
             const existing = product.images && product.images.length > 0 
@@ -79,6 +93,10 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
         
         sizes.forEach((size) => {
             formData.append('sizes', size);
+        });
+
+        colors.forEach((color) => {
+            formData.append('colors', color);
         });
 
         keptImages.forEach((img) => {
@@ -179,6 +197,54 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                         />
                                         <label htmlFor={`update-size-${size}`} className="ml-2 text-sm font-medium text-gray-900 uppercase">
                                             {size}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                             <label className="mb-2 block text-sm font-medium text-gray-900">Colors</label>
+                             <div className="flex flex-wrap gap-4">
+                                {['red', 'blue', 'green', 'black', 'white', 'yellow', 'orange', 'purple', 'pink', 'gray', 'brown', 'beige'].map((color) => (
+                                    <div key={color} className="flex items-center">
+                                         <label
+                                            htmlFor={`update-color-${color}`}
+                                            className={`relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-gray-200 shadow-sm transition-all hover:scale-110 ${
+                                                colors.includes(color) ? 'ring-2 ring-primary-500 ring-offset-2' : ''
+                                            }`}
+                                            style={{ backgroundColor: color }}
+                                            title={color}
+                                        >
+                                            <input
+                                                id={`update-color-${color}`}
+                                                type="checkbox"
+                                                value={color}
+                                                checked={colors.includes(color)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setColors([...colors, color]);
+                                                    } else {
+                                                        setColors(colors.filter((c) => c !== color));
+                                                    }
+                                                }}
+                                                className="sr-only" // Hide the default checkbox
+                                            />
+                                             {/* Optional: Checkmark for better visibility on selection */}
+                                            {colors.includes(color) && (
+                                                <svg
+                                                    className={`h-4 w-4 ${['white', 'yellow', 'beige'].includes(color) ? 'text-black' : 'text-white'}`}
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={3}
+                                                        d="M5 13l4 4L19 7"
+                                                    />
+                                                </svg>
+                                            )}
                                         </label>
                                     </div>
                                 ))}
