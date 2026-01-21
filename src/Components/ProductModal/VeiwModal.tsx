@@ -9,6 +9,7 @@ interface Product {
     sizes?: string | string[];
     image?: string;
     images?: string[];
+    colors?: string | string[];
 }
 
 interface ViewModalProps {
@@ -19,6 +20,7 @@ interface ViewModalProps {
 
 const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onClose, product }) => {
     const [sizes, setSizes] = useState<string[]>([]);
+    const [colors, setColors] = useState<string[]>([]);
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
 
     useEffect(() => {
@@ -40,6 +42,16 @@ const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onClose, product }) => {
                 return map[trimmed] || trimmed;
             });
             setSizes(initialSizes);
+
+            // Handle colors
+            let rawColors: string[] = [];
+            if (Array.isArray(product.colors)) {
+                rawColors = product.colors;
+            } else if (typeof product.colors === 'string') {
+                rawColors = (product.colors as string).split(',');
+            }
+             const initialColors = rawColors.map(c => c.trim().toLowerCase());
+            setColors(initialColors);
 
             // Set initial selected image
             const imgs = product.images && product.images.length > 0 
@@ -83,6 +95,20 @@ const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onClose, product }) => {
                          <div>
                             <span className="block text-sm font-medium text-gray-500">Category</span>
                              <span className="text-lg text-gray-900">{product.category}</span>
+                        </div>
+                        <div>
+                             <span className="block text-sm font-medium text-gray-500">Colors</span>
+                             <div className="flex gap-2 flex-wrap mt-1">
+                                {colors.length > 0 ? colors.map(color => (
+                                      <div
+                                        key={color}
+                                        className="relative flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 shadow-sm"
+                                        style={{ backgroundColor: color }}
+                                        title={color}
+                                    >
+                                    </div>
+                                )) : <span className="text-gray-400 text-sm">No colors</span>}
+                             </div>
                         </div>
                         <div>
                              <span className="block text-sm font-medium text-gray-500">Sizes</span>
