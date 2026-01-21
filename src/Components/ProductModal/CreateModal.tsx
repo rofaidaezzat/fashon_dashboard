@@ -144,8 +144,8 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                         </div>
                         <div>
                              <label className="mb-2 block text-sm font-medium text-gray-900">Colors</label>
-                             <div className="flex flex-wrap gap-4">
-                                {['red', 'blue', 'green', 'black', 'white', 'yellow', 'orange', 'purple', 'pink', 'gray', 'brown', 'beige'].map((color) => (
+                            <div className="flex flex-wrap gap-4">
+                                {['red', 'blue', 'green', 'black', 'white', 'yellow', 'orange', 'purple', 'pink', 'gray', 'brown', 'beige', 'navy', 'teal', 'maroon', 'lime', 'olive', 'cyan', 'magenta', 'gold', 'silver', 'indigo', 'violet', 'turquoise', 'lavender', 'coral', 'crimson', 'khaki', 'plum', 'salmon', 'tan', 'wheat'].map((color) => (
                                     <div key={color} className="flex items-center">
                                         <label
                                             htmlFor={`color-${color}`}
@@ -172,7 +172,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                                             {/* Optional: Checkmark for better visibility on selection */}
                                             {colors.includes(color) && (
                                                 <svg
-                                                    className={`h-4 w-4 ${['white', 'yellow', 'beige'].includes(color) ? 'text-black' : 'text-white'}`}
+                                                    className={`h-4 w-4 ${['white', 'yellow', 'beige', 'lime', 'gold', 'silver', 'wheat', 'tan', 'khaki', 'lavender', 'cyan'].includes(color) ? 'text-black' : 'text-white'}`}
                                                     fill="none"
                                                     viewBox="0 0 24 24"
                                                     stroke="currentColor"
