@@ -1,5 +1,7 @@
 import  { useState, useEffect } from 'react';
 import { useUpdateProductMutation } from '../../app/services/crudProduct';
+import { productSchema } from '../../validation';
+import * as yup from 'yup';
 
 interface Product {
     _id: string;
@@ -29,6 +31,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
     const [keptImages, setKeptImages] = useState<string[]>([]);
     // Add colors state
     const [colors, setColors] = useState<string[]>([]);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
     const [updateProduct, { isLoading }] = useUpdateProductMutation();
 
@@ -85,35 +88,68 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        const formData = new FormData();
-        formData.append('name', name);
-        formData.append('price', price);
-        formData.append('description', description);
-        formData.append('category', category);
-        
-        sizes.forEach((size) => {
-            formData.append('sizes', size);
-        });
+        // Clear previous validation errors
+        setValidationErrors({});
 
-        colors.forEach((color) => {
-            formData.append('colors', color);
-        });
+        // Combine existing and new images for validation
+        const allImages = [...keptImages, ...images.map(img => img.name)];
 
-        keptImages.forEach((img) => {
-            formData.append('images', img);
-        });
-
-        if (images && images.length > 0) {
-             images.forEach((img) => {
-                formData.append('images', img);
-            });
-        }
+        // Prepare data for validation
+        const productData = {
+            name,
+            description,
+            price: price ? Number(price) : undefined,
+            category,
+            sizes,
+            colors,
+            images: allImages, // Validate combined images
+        };
 
         try {
+            // Validate with Yup schema
+            await productSchema.validate(productData, { abortEarly: false });
+
+            // If validation passes, proceed with form submission
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('price', price);
+            formData.append('description', description);
+            formData.append('category', category);
+            
+            sizes.forEach((size) => {
+                formData.append('sizes', size);
+            });
+
+            colors.forEach((color) => {
+                formData.append('colors', color);
+            });
+
+            keptImages.forEach((img) => {
+                formData.append('images', img);
+            });
+
+            if (images && images.length > 0) {
+                images.forEach((img) => {
+                    formData.append('images', img);
+                });
+            }
+
             await updateProduct({ id: product._id, formData }).unwrap();
             onClose();
+            setValidationErrors({});
         } catch (error) {
-            console.error('Failed to update product:', error);
+            if (error instanceof yup.ValidationError) {
+                // Handle validation errors
+                const errors: Record<string, string> = {};
+                error.inner.forEach((err) => {
+                    if (err.path) {
+                        errors[err.path] = err.message;
+                    }
+                });
+                setValidationErrors(errors);
+            } else {
+                console.error('Failed to update product:', error);
+            }
         }
     };
 
@@ -142,9 +178,9 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 id="update_name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
-                                required
+                                className={`block w-full rounded-lg border p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 ${validationErrors.name ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                             />
+                            {validationErrors.name && <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>}
                         </div>
                         <div>
                             <label htmlFor="update_price" className="mb-2 block text-sm font-medium text-gray-900">Price</label>
@@ -153,9 +189,9 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 id="update_price"
                                 value={price}
                                 onChange={(e) => setPrice(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
-                                required
+                                className={`block w-full rounded-lg border p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 ${validationErrors.price ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                             />
+                            {validationErrors.price && <p className="mt-1 text-sm text-red-600">{validationErrors.price}</p>}
                         </div>
                         <div>
                             <label htmlFor="update_category" className="mb-2 block text-sm font-medium text-gray-900">Category</label>
@@ -163,8 +199,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 id="update_category"
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
-                                required
+                                className={`block w-full rounded-lg border p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 ${validationErrors.category ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                             >
                                 <option value="" disabled>Select category</option>
                                 <option value="رمضان كريم">رمضان كريم</option>
@@ -175,6 +210,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 <option value="كاجول">كاجول</option>
                                 <option value="فورمال او كلاسيك">فورمال او كلاسيك</option>
                             </select>
+                            {validationErrors.category && <p className="mt-1 text-sm text-red-600">{validationErrors.category}</p>}
                         </div>
                         <div>
                              <label className="mb-2 block text-sm font-medium text-gray-900">Sizes</label>
@@ -201,6 +237,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                     </div>
                                 ))}
                             </div>
+                            {validationErrors.sizes && <p className="mt-1 text-sm text-red-600">{validationErrors.sizes}</p>}
                         </div>
                         <div>
                              <label className="mb-2 block text-sm font-medium text-gray-900">Colors</label>
@@ -249,6 +286,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                     </div>
                                 ))}
                             </div>
+                            {validationErrors.colors && <p className="mt-1 text-sm text-red-600">{validationErrors.colors}</p>}
                         </div>
                         <div>
                             <label htmlFor="update_description" className="mb-2 block text-sm font-medium text-gray-900">Description</label>
@@ -257,8 +295,9 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                 rows={3}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
+                                className={`block w-full rounded-lg border p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 ${validationErrors.description ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                             ></textarea>
+                            {validationErrors.description && <p className="mt-1 text-sm text-red-600">{validationErrors.description}</p>}
                         </div>
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-900">Current Images</label>
@@ -284,10 +323,11 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
 
                             <label className="mb-2 block text-sm font-medium text-gray-900" htmlFor="update_file_input">Upload New Images</label>
                             <input 
-                                className="block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-none" 
+                                className={`block w-full cursor-pointer rounded-lg border text-sm text-gray-900 focus:outline-none ${validationErrors.images ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                                 id="update_file_input" 
                                 type="file"
                                 multiple
+                                accept="image/*"
                                 onChange={(e) => setImages([...images, ...Array.from(e.target.files || [])])}
                             />
                             <div className="mt-2 flex flex-wrap gap-2">
@@ -306,6 +346,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, product }) =
                                     </div>
                                 ))}
                             </div>
+                            {validationErrors.images && <p className="mt-1 text-sm text-red-600">{validationErrors.images}</p>}
                         </div>
                         <button
                             type="submit"

@@ -1,5 +1,7 @@
 import  { useState } from 'react';
 import { useAddProductMutation } from '../../app/services/crudProduct';
+import { productSchema } from '../../validation';
+import * as yup from 'yup';
 
 interface CreateModalProps {
     isOpen: boolean;
@@ -14,6 +16,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
     const [sizes, setSizes] = useState<string[]>([]);
     const [colors, setColors] = useState<string[]>([]);
     const [images, setImages] = useState<File[]>([]);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
     const [addProduct, { isLoading }] = useAddProductMutation();
 
@@ -22,27 +25,45 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        const formData = new FormData();
-        formData.append('name', name);
-        formData.append('price', price);
-        formData.append('description', description);
-        formData.append('category', category);
-        // formData.append('sizes', sizes.join(','));
-        sizes.forEach((size) => {
-            formData.append('sizes', size);
-        });
+        // Clear previous validation errors
+        setValidationErrors({});
 
-        colors.forEach((color) => {
-            formData.append('colors', color);
-        });
-        
-        if (images && images.length > 0) {
-             images.forEach((img) => {
-                formData.append('images', img);
-            });
-        }
+        // Prepare data for validation
+        const productData = {
+            name,
+            description,
+            price: price ? Number(price) : undefined,
+            category,
+            sizes,
+            colors,
+            images: images.map(img => img.name), // Validate that images exist
+        };
 
         try {
+            // Validate with Yup schema
+            await productSchema.validate(productData, { abortEarly: false });
+
+            // If validation passes, proceed with form submission
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('price', price);
+            formData.append('description', description);
+            formData.append('category', category);
+            
+            sizes.forEach((size) => {
+                formData.append('sizes', size);
+            });
+
+            colors.forEach((color) => {
+                formData.append('colors', color);
+            });
+            
+            if (images && images.length > 0) {
+                images.forEach((img) => {
+                    formData.append('images', img);
+                });
+            }
+
             await addProduct(formData).unwrap();
             onClose();
             // Reset form
@@ -53,8 +74,20 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
             setSizes([]);
             setColors([]);
             setImages([]);
+            setValidationErrors({});
         } catch (error) {
-            console.error('Failed to create product:', error);
+            if (error instanceof yup.ValidationError) {
+                // Handle validation errors
+                const errors: Record<string, string> = {};
+                error.inner.forEach((err) => {
+                    if (err.path) {
+                        errors[err.path] = err.message;
+                    }
+                });
+                setValidationErrors(errors);
+            } else {
+                console.error('Failed to create product:', error);
+            }
         }
     };
 
@@ -82,9 +115,9 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                                 id="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
-                                required
+                                className={`block w-full rounded-lg border p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 ${validationErrors.name ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                             />
+                            {validationErrors.name && <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>}
                         </div>
                         <div>
                             <label htmlFor="price" className="mb-2 block text-sm font-medium text-gray-900">Price</label>
@@ -93,9 +126,9 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                                 id="price"
                                 value={price}
                                 onChange={(e) => setPrice(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
-                                required
+                                className={`block w-full rounded-lg border p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 ${validationErrors.price ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                             />
+                            {validationErrors.price && <p className="mt-1 text-sm text-red-600">{validationErrors.price}</p>}
                         </div>
                         <div>
                             <label htmlFor="category" className="mb-2 block text-sm font-medium text-gray-900">Category</label>
@@ -103,8 +136,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                                 id="category"
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
-                                required
+                                className={`block w-full rounded-lg border p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 ${validationErrors.category ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                             >
                                 <option value="" disabled>Select category</option>
                                 <option value="رمضان كريم">رمضان كريم</option>
@@ -115,6 +147,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                                 <option value="كاجول">كاجول</option>
                                 <option value="فورمال او كلاسيك">فورمال او كلاسيك</option>
                             </select>
+                            {validationErrors.category && <p className="mt-1 text-sm text-red-600">{validationErrors.category}</p>}
                         </div>
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-900">Sizes</label>
@@ -141,6 +174,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                                     </div>
                                 ))}
                             </div>
+                            {validationErrors.sizes && <p className="mt-1 text-sm text-red-600">{validationErrors.sizes}</p>}
                         </div>
                         <div>
                              <label className="mb-2 block text-sm font-medium text-gray-900">Colors</label>
@@ -189,6 +223,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                                     </div>
                                 ))}
                             </div>
+                            {validationErrors.colors && <p className="mt-1 text-sm text-red-600">{validationErrors.colors}</p>}
                         </div>
                         <div>
                             <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-900">Description</label>
@@ -197,16 +232,18 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                                 rows={3}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
+                                className={`block w-full rounded-lg border p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 ${validationErrors.description ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                             ></textarea>
+                            {validationErrors.description && <p className="mt-1 text-sm text-red-600">{validationErrors.description}</p>}
                         </div>
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-900" htmlFor="file_input">Upload Images</label>
                             <input 
-                                className="block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-none" 
+                                className={`block w-full cursor-pointer rounded-lg border text-sm text-gray-900 focus:outline-none ${validationErrors.images ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                                 id="file_input" 
                                 type="file"
                                 multiple
+                                accept="image/*"
                                 onChange={(e) => setImages(e.target.files ? Array.from(e.target.files) : [])}
                             />
                             <div className="mt-2 flex flex-wrap gap-2">
@@ -214,6 +251,7 @@ const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose }) => {
                                     <span key={index} className="text-xs text-gray-500">{img.name}</span>
                                 ))}
                             </div>
+                            {validationErrors.images && <p className="mt-1 text-sm text-red-600">{validationErrors.images}</p>}
                         </div>
                         <button
                             type="submit"
